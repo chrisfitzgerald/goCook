@@ -37,5 +37,5 @@ func loginHandler(c echo.Context) error {
 }
 
 func homeHandler(c echo.Context) error {
-    return c.String(http.StatusOK, "Home Page")
+    return c.String(http.StatusOK, "Welcome back " + c.FormValue("username") + "!")
 }
