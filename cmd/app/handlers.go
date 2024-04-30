@@ -5,10 +5,27 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
+type User struct {
+	Username string
+	Password string 
+}
+
+var users = []User{
+	{Username: "admin", Password: "password"},
+}
+
 func loginHandler(c echo.Context) error {
-    // Check if user is already logged in
-    // This is just a placeholder, replace with your actual login check
-    isLoggedIn := false
+	isLoggedIn := false
+	username := c.FormValue("username")
+	password := c.FormValue("password")
+
+	// Validate the user's credentials.
+	for _, user := range users {
+		if user.Username == username && user.Password == password {
+			return c.Redirect(http.StatusSeeOther, "/home")
+		}
+	}
+	
 
     if isLoggedIn {
         // If user is already logged in, redirect to another page
