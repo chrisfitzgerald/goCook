@@ -1,9 +1,11 @@
 package main
-	
+
 import (
-	"github.com/labstack/echo/v4"
 	"html/template"
 	"io"
+	"log"
+
+	"github.com/labstack/echo/v4"
 )
 
 type TemplateRenderer struct {
@@ -26,6 +28,9 @@ func main() {
    e.GET("/", loginHandler)
    e.GET("/home", homeHandler)
 
-   e.Start(":8080")
+   err := e.Start(":8080")
+   if err != nil {
+      log.Fatalf("failed to start server: %v", err)
+   }
 } 
 
