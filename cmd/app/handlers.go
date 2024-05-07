@@ -1,11 +1,12 @@
 package main
 
 import (
+	"log"
+    "fmt"
 	"net/http"
+	"time"
 	"github.com/dgrijalva/jwt-go"
 	"github.com/labstack/echo/v4"
-	"time"
-	"log"
 )
 
 type User struct {
@@ -58,13 +59,55 @@ func loginHandler(c echo.Context) error {
         })
     }
 
+    //Set a cookie with the JWT
+    cookie := new(http.Cookie)
+    cookie.Name = "token"
+    cookie.Value = tokenString
+    cookie.Expires = time.Now().Add(time.Minute * 5)
+    cookie.Path = "/"
+    cookie.Secure = false
+    cookie.SameSite = http.SameSiteLaxMode 
+    c.SetCookie(cookie)
+
     //return the token
-    return c.JSON(http.StatusOK, map[string]string{
-        "token": tokenString,
-        "redirectURL": "/home",
-    })
+    return c.Redirect(http.StatusMovedPermanently, "/home")
 }
 
 func homeHandler(c echo.Context) error {
-    return c.String(http.StatusOK, "Welcome back " + c.FormValue("username") + "!")
+    // Get the JWT from the cookie.
+    cookie, err := c.Cookie("token")
+    if err != nil {
+        return c.JSON(http.StatusUnauthorized, map[string]string{
+            "message": "missing jwt",
+        })
+    }
+
+    // Parse the JWT.
+    token, err := jwt.Parse(cookie.Value, func(token *jwt.Token) (interface{}, error) {
+        if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+            return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
+        }
+        return jwtKey, nil
+    })
+    if err != nil {
+        return c.JSON(http.StatusUnauthorized, map[string]string{
+            "message": "malformed jwt",
+        })
+    }
+
+    // Check if the token is valid.
+    if !token.Valid {
+        return c.JSON(http.StatusUnauthorized, map[string]string{
+            "message": "invalid jwt",
+        })
+    }
+
+    // Get the username from the JWT.
+    claims := token.Claims.(jwt.MapClaims)
+    username := claims["username"].(string)
+
+    // Return the welcome message.
+    return c.JSON(http.StatusOK, map[string]string{
+        "message": "Welcome, " + username + "!",
+    })
 }

@@ -42,6 +42,7 @@ func main() {
    config := middleware.JWTConfig{
       Claims:     &jwt.MapClaims{},
       SigningKey: jwtKey,
+      TokenLookup: "cookie:token",
    }
 
    //set up the routes
