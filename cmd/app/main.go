@@ -28,6 +28,8 @@ func main() {
    // Create a new Echo instance
    e := echo.New()
 
+   e.Static(("/template"), "template")
+
    //Set up the template renderer
    templates, err := template.ParseGlob("template/*.html")
    if err != nil {
