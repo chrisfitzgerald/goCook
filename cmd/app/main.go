@@ -41,10 +41,13 @@ func main() {
    // Define the JWT middleware configuration
    config := middleware.JWTConfig{
       Claims:     &jwt.MapClaims{},
-      SigningKey: jwtKey,
+      SigningKey: []byte(jwtKey),
       TokenLookup: "cookie:token",
+      ErrorHandler: func(err error) error {
+         log.Printf("JWT validation error: %v", err)
+         return echo.ErrUnauthorized
+      }, 
    }
-
    //set up the routes
    setupRoutes(e, config)
 
