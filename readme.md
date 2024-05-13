@@ -1,8 +1,8 @@
-# Web Application Name
+# goCook
 
 ## Overview
 
-This web application is a simple login system built with Go and Firebase. It allows users to log in with their username and password. The application uses Firebase for user authentication and data storage.
+goCook is a simple web application template built with Go and Firebase to jumpstart your next project. It allows users to log in with their username and password. The application uses Firebase for user authentication and data storage.
 
 ## Features
 
@@ -11,7 +11,7 @@ This web application is a simple login system built with Go and Firebase. It all
 
 ## Setup and Installation
 
-1. Clone the repository: `git clone https://github.com/username/repository.git`
+1. Clone the repository: `git clone https://github.com/chrisfitzgerald/goCook`
 2. Navigate to the project directory: `cd repository`
 3. Install the Firebase Admin SDK: `go get firebase.google.com/go/v4`
 4. Replace `"path/to/serviceAccountKey.json"` in the Go files with the path to your Firebase service account key file.
