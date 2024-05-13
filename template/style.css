@@ -4,19 +4,27 @@ body {
     align-items: center;
     height: 100vh;
     margin: 0;
-    background-color: #f0f0f0;
+    background-color: #2c2c2c;
     font-family: Arial, sans-serif;
+    color: #CECDC3;
 }
 
-form {
-    background: white;
-    padding: 20px;
-    border-radius: 5px;
-    box-shadow: 0px 0px 10px 0px rgba(0,0,0,0.1);
+form { 
+    display: flex;
+    flex-direction: column;
+    justify-content: space-evenly;
 }
 
 h1 {
     text-align: center;
+}
+.container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+.hidden {
+    display: none;
 }
 
 label {
@@ -27,20 +35,25 @@ label {
 input[type="text"], input[type="password"] {
     width: 100%;
     padding: 10px;
-    margin-bottom: 20px;
+    color:#CECDC3;
+    border: 1px solid #3e3e3e;
+    background-color: #2c2c2c;
     border-radius: 5px;
-    border: 1px solid #ccc;
+    box-sizing: border-box;
 }
 
 input[type="submit"] {
-    width: 100%;
+    display: block;
+    margin: auto;
+    width: 150px;
     padding: 10px;
     border-radius: 5px;
     border: none;
-    color: white;
-    background-color: #007BFF;
+    color: #fff;
+    font-style: bold;
+    background-color: #66800B;
 }
 
 input[type="submit"]:hover {
-    background-color: #0056b3;
+    background-color: #879A39;
 }
