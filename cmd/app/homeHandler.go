@@ -34,11 +34,9 @@ func homeHandler(c echo.Context) error {
     }
 
     // Get the username from the JWT.
-    claims := token.Claims.(jwt.MapClaims)
-    username := claims["username"].(string)
+    //claims := token.Claims.(jwt.MapClaims)
+    //username := claims["username"].(string)
 
     // Return the welcome message.
-    return c.JSON(http.StatusOK, map[string]string{
-        "message": "Welcome, " + username + "!",
-    })
+    return c.Redirect(http.StatusMovedPermanently, "./template/index.html")
 }
