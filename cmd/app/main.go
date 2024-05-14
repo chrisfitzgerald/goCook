@@ -21,7 +21,7 @@ func (t *TemplateRenderer) Render(w io.Writer, name string, data interface{}, c 
 
 func serveLoginPage(c echo.Context) error {
     // Render the login page
-    return c.Render(http.StatusOK, "login.html", nil)
+    return c.File("login.html")
 }
 
 func main() {
