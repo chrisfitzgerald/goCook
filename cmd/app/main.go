@@ -2,7 +2,7 @@ package main
 
 import (
    "os"
-   "net/http"
+   //"net/http"
 	"html/template"
 	"io"
 	"log"

@@ -1,13 +1,19 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Home Page</title>
-    <link rel="stylesheet" type="text/css" href="style.css">
+    <title>Login</title>
+    <link rel="stylesheet" type="text/css" href="/template/style.css">
 </head>
 <body>
-    <div class="container">
-        <h1>Welcome to the Home Page</h1>
-        <p>This is a simple home page.</p>
+    <div class ="container">
+        <h1>welcome to <b>goCook</b>, pls login:</h1>
+        <form action="/login" method="post">
+            <label for="username" class="hidden">Username:</label><br>
+            <input type="text" id="username" name="username" placeholder="username"><br>
+            <label for="password" class="hidden">Password:</label><br>
+            <input type="password" id="password" name="password" placeholder="password"><br>
+            <input type="submit" value="submit">
+        </form>
     </div>
 </body>
 </html>
