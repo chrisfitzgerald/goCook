@@ -5,7 +5,6 @@ import (
     "log"
     "net/http"
     "time"
-
     "github.com/dgrijalva/jwt-go"
     "github.com/labstack/echo/v4"
 )
@@ -63,7 +62,7 @@ func loginHandler(c echo.Context) error {
     cookie.Expires = time.Now().Add(time.Minute * 5)
     cookie.Path = "/"
     cookie.HttpOnly = true
-    cookie.Secure = false
+    cookie.Secure = true 
     cookie.SameSite = http.SameSiteLaxMode
     c.SetCookie(cookie)
 
