@@ -1,9 +1,6 @@
 {
-  "database": {
-    "rules": "database.rules.json"
-  },
   "hosting": {
-    "public": "template",
+    "public": "public",
     "ignore": [
       "firebase.json",
       "**/.*",
@@ -13,6 +10,10 @@
       {
         "source": "**",
         "destination": "/login.html"
+      },
+      {
+        "source": "/home",
+        "destination": "/home.html"
       }
     ]
   }
