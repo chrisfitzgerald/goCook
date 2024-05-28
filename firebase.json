@@ -10,6 +10,7 @@
       {
         "source": "**",
         "run": {  
+          "serviceId": "goCook",
           "region": "us-central1",
           "target": "template"
         }
