@@ -9,8 +9,7 @@
     "rewrites": [
       {
         "source": "**",
-        "run": {
-          "serviceId": "default",
+        "run": {  
           "region": "us-central1",
           "target": "template"
         }
