@@ -21,7 +21,7 @@ func (t *TemplateRenderer) Render(w io.Writer, name string, data interface{}, c 
 
 func serveLoginPage(c echo.Context) error {
     // Render the login page
-    return c.File("login.html")
+    return c.File("template/login.html")
 }
 
 func main() {
@@ -51,6 +51,7 @@ func main() {
       }, 
    }
    //set up the routes
+   e.GET("/", serveLoginPage)
    setupRoutes(e, config)
 
    // Start the server
@@ -70,7 +71,4 @@ func setupRoutes(e *echo.Echo, config middleware.JWTConfig) {
 
     // Define the home route with the JWT middleware
     e.GET("/home", homeHandler, middleware.JWTWithConfig(config))
-
-    // Define the root route
-    e.GET("/", serveLoginPage)
 }
