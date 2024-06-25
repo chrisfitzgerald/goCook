@@ -70,7 +70,7 @@ func setupRoutes(e *echo.Echo, config middleware.JWTConfig) {
 
     // Define the home route with the JWT middleware
     e.GET("/home", homeHandler, middleware.JWTWithConfig(config))
-
+    e.GET("/", getDateTimeHandler)
     // Define the root route
     e.GET("/", serveLoginPage)
 }
