@@ -1,30 +1,68 @@
 # goCook
 
-## Overview
+## 🍳 Overview
 
-goCook is a simple web application template built with Go and Firebase to jumpstart your next project. It allows users to log in with their username and password. The application uses Firebase for user authentication and data storage.
+goCook is a modern web application template built with Go, leveraging the power of Echo framework and Google OAuth for authentication. It provides a solid foundation for building secure and scalable web applications.
 
-## Features
+## 🚀 Features
 
-- User authentication: Users can log in with their username and password.
-- Secure data storage: User data is securely stored in Firebase.
+- **Google OAuth Integration**: Seamless login experience using Google accounts
+- **JWT Authentication**: Secure session management with JSON Web Tokens
+- **Responsive UI**: Clean and intuitive user interface
+- **Customizable**: Easy to extend and adapt to your specific needs
 
-## Setup and Installation
+## 🛠 Tech Stack
 
-1. Clone the repository: `git clone https://github.com/chrisfitzgerald/goCook`
-2. Navigate to the project directory: `cd repository`
-3. Install the Firebase Admin SDK: `go get firebase.google.com/go/v4`
-4. Replace `"path/to/serviceAccountKey.json"` in the Go files with the path to your Firebase service account key file.
-5. Start the Go server: `go run main.go`
+- **Backend**: Go with Echo framework
+- **Authentication**: Google OAuth 2.0 and JWT
+- **Frontend**: HTML, CSS
+- **Environment**: dotenv for configuration management
 
-## Usage
+## 🚦 Getting Started
 
-Open your web browser and navigate to `localhost:8080` to see the login page. Enter your username and password to log in.
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/yourusername/goCook.git
+   cd goCook
+   ```
 
-## Contributing
+2. Install dependencies:
+   ```bash
+   go mod tidy
+   ```
 
-Contributions are welcome! Please read the [contributing guidelines](CONTRIBUTING.md) first.
+3. Set up your environment variables:
+   Create a `.env` file in the root directory and add the following:
+   ```bash
+   GOOGLE_CLIENT_ID=your_google_client_id
+   GOOGLE_CLIENT_SECRET=your_google_client_secret
+   JWT_SECRET_KEY=your_jwt_secret_key
+   ```
 
-## License
+4. Run the application:
+   ```bash
+   go run cmd/app/*.go
+   ```
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+5. Open your browser and navigate to `http://localhost:8080`
+
+## 🔒 Authentication Flow
+
+1. User clicks "Login with Google"
+2. User is redirected to Google for authentication
+3. Upon successful authentication, a JWT is created and stored as a cookie
+4. The JWT is used for subsequent authenticated requests
+
+## 🎨 Customization
+
+- Modify the HTML templates in the `template` directory to change the UI
+- Adjust the CSS in `template/style.css` to match your desired look and feel
+- Extend the backend functionality by adding new routes and handlers in `cmd/app/main.go`
+
+## 🤝 Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request.
+
+## 📄 License
+
+This project is licensed under the MIT License.
