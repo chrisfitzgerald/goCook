@@ -1,15 +1,24 @@
 package main
 
 import (
-   "os"
    "net/http"
 	"html/template"
 	"io"
 	"log"
-   "github.com/dgrijalva/jwt-go"
+	"github.com/golang-jwt/jwt/v5"
 	"github.com/labstack/echo/v4"
-   "github.com/labstack/echo/v4/middleware"
+	_"github.com/labstack/echo-jwt/v4"
+	_"github.com/labstack/echo/v4/middleware"
+	_"golang.org/x/oauth2"
+	_"golang.org/x/oauth2/google"
+	"github.com/joho/godotenv"
 )
+
+func init() {
+	if err := godotenv.Load(); err != nil {
+		log.Fatal("Error loading .env file")
+	}
+}
 
 type TemplateRenderer struct {
 	templates *template.Template
@@ -24,53 +33,108 @@ func serveLoginPage(c echo.Context) error {
     return c.Render(http.StatusOK, "login.html", nil)
 }
 
+func customJWTMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
+    return func(c echo.Context) error {
+        cookie, err := c.Cookie(TokenCookieName)
+        if err != nil {
+            log.Printf("No JWT cookie found: %v", err)
+            log.Printf("All cookies: %v", c.Cookies())
+            return next(c)
+        }
+
+        log.Printf("JWT cookie found: %+v", cookie)
+
+        token, err := jwt.ParseWithClaims(cookie.Value, &jwt.RegisteredClaims{}, func(token *jwt.Token) (interface{}, error) {
+            return []byte(JWTKey), nil
+        })
+
+        if err != nil {
+            log.Printf("JWT parsing error: %v", err)
+            // Clear the invalid cookie
+            c.SetCookie(&http.Cookie{
+                Name:   TokenCookieName,
+                Value:  "",
+                Path:   "/",
+                MaxAge: -1,
+            })
+            return next(c)
+        }
+
+        if claims, ok := token.Claims.(*jwt.RegisteredClaims); ok && token.Valid {
+            c.Set("user", claims)
+            log.Printf("Valid JWT found for user: %s", claims.Subject)
+        } else {
+            log.Printf("Invalid JWT token")
+            // Clear the invalid cookie
+            c.SetCookie(&http.Cookie{
+                Name:   TokenCookieName,
+                Value:  "",
+                Path:   "/",
+                MaxAge: -1,
+            })
+        }
+
+        return next(c)
+    }
+}
+
+func debugHandler(c echo.Context) error {
+   data := map[string]interface{}{
+      "Cookies": c.Cookies(),
+      "Headers": c.Request().Header,
+   }
+
+   if user := c.Get("user"); user != nil {
+      data["User"] = user
+   }
+
+   return c.JSON(http.StatusOK, data)
+}
+
 func main() {
    // Create a new Echo instance
    e := echo.New()
 
-   e.Static(("/template"), "template")
+   // Serve files from the template directory
+   e.Static("/template", "template")
 
-   //Set up the template renderer
-   templates, err := template.ParseGlob("template/*.html")
-   if err != nil {
-      log.Fatalf("failed to parse templates: %v", err)
+   // Load templates
+   t := template.Must(template.ParseGlob("template/*.html"))
+   e.Renderer = &TemplateRenderer{
+       templates: t,
    }
-   renderer := &TemplateRenderer{
-      templates: templates,
-   }
-   e.Renderer = renderer
-    
-   // Define the JWT middleware configuration
-   config := middleware.JWTConfig{
-      Claims:     &jwt.MapClaims{},
-      SigningKey: []byte(jwtKey),
-      TokenLookup: "cookie:token",
-      ErrorHandler: func(err error) error {
-         log.Printf("JWT validation error: %v", err)
-         return echo.ErrUnauthorized
-      }, 
-   }
-   //set up the routes
-   setupRoutes(e, config)
 
-   // Start the server
-   port := os.Getenv("PORT")
-   if port == "" {
-       port = "8080" // Default port if not specified
-   }
-   err = e.Start(":" + port)
-   if err != nil {
-       log.Fatalf("failed to start server: %v", err)
-   }
-} 
+   // JWT middleware configuration
+   // config := echojwt.Config{
+   //    NewClaimsFunc: func(c echo.Context) jwt.Claims {
+   //       return &jwt.RegisteredClaims{}
+   //    },
+   //    SigningKey: []byte(JWTKey),
+   //    TokenLookup: "cookie:" + TokenCookieName,
+   //    ErrorHandler: func(c echo.Context, err error) error {
+   //       log.Printf("JWT Middleware Error: %v", err)
+   //       log.Printf("Request path: %s", c.Request().URL.Path)
+   //       log.Printf("Cookies: %v", c.Cookies())
+   //       return nil // Allow the request to continue
+   //    },
+   // }
 
-func setupRoutes(e *echo.Echo, config middleware.JWTConfig) {
-    // Define the login route
-    e.POST("/login", loginHandler)
+   // Apply JWT middleware to all routes, but allow requests to continue on error
+   e.Use(customJWTMiddleware)
 
-    // Define the home route with the JWT middleware
-    e.GET("/home", homeHandler, middleware.JWTWithConfig(config))
-    e.GET("/", getDateTimeHandler)
-    // Define the root route
-    e.GET("/", serveLoginPage)
+   // Public routes
+   e.GET("/", homeHandler)
+   e.GET("/login", serveLoginPage)
+   e.GET("/auth/google/login", googleLoginHandler)
+   e.GET("/auth/google/callback", googleCallbackHandler)
+   e.GET("/logout", logoutHandler)
+
+   // Protected routes can be added here if needed
+   // r := e.Group("/protected")
+   // r.Use(echojwt.WithConfig(config))
+   // r.GET("/profile", profileHandler)
+
+   e.GET("/debug", debugHandler)
+
+   e.Logger.Fatal(e.Start(":8080"))
 }

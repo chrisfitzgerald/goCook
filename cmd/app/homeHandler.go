@@ -1,42 +1,46 @@
 package main
 
 import (
-    "fmt"
+    _"fmt"
+    "log"
 	"net/http"
-	"github.com/dgrijalva/jwt-go"
+	"github.com/golang-jwt/jwt/v5"
 	"github.com/labstack/echo/v4"
+	"time"
 )
 
 func homeHandler(c echo.Context) error {
-    // Get the JWT from the cookie.
-    cookie, err := c.Cookie(TokenCookieName)
-    if err != nil {
-		return handleError(c, http.StatusUnauthorized, "missing jwt")
-    }
+	log.Println("Home handler started")
+	// Get the current date and time
+	now := time.Now()
+	formattedNow := now.Format("Mon Jan 2 15:04:05 MST 2006")
+	
+	data := map[string]interface{}{
+		"DateTime": formattedNow,
+	}
 
-    // Parse the JWT.
-    token, err := jwt.Parse(cookie.Value, func(token *jwt.Token) (interface{}, error) {
-		// Make sure the token method is what we expect.
-        if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
-            return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
-        }
-		
-        return []byte(jwtKey), nil
-    })
+	// Try to get the user from the context (it will be nil if not authenticated)
+	user := c.Get("user")
+	log.Printf("User object from context: %+v", user)
 
-    if err != nil {
-		return handleError(c, http.StatusUnauthorized, "invalid jwt")
-    }
+	if claims, ok := user.(*jwt.RegisteredClaims); ok {
+		log.Printf("JWT Claims: %+v", claims)
+		if claims.ExpiresAt != nil && claims.ExpiresAt.Before(time.Now()) {
+			log.Println("Token has expired")
+			data["Email"] = ""
+		} else {
+			email := claims.Subject
+			data["Email"] = email
+			log.Printf("User authenticated: %s", email)
+		}
+	} else {
+		log.Println("User not authenticated")
+		// Log the cookies
+		for _, cookie := range c.Cookies() {
+			log.Printf("Cookie: %s = %s", cookie.Name, cookie.Value)
+		}
+		data["Email"] = "" // Ensure Email is set to an empty string for unauthenticated users
+	}
 
-    // Check if the token is valid.
-    if !token.Valid {
-       return handleError(c, http.StatusUnauthorized, "invalid jwt") 
-    }
-
-    // Get the username from the JWT.
-    //claims := token.Claims.(jwt.MapClaims)
-    //username := claims["username"].(string)
-
-    // Return the welcome message.
-    return c.Redirect(http.StatusMovedPermanently, "./template/index.html")
+	return c.Render(http.StatusOK, "index.html", data)
 }
