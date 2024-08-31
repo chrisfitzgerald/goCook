@@ -21,8 +21,8 @@ var JWTKey = os.Getenv("JWT_SECRET_KEY")
 
 var googleOauthConfig = &oauth2.Config{
 	RedirectURL:  "http://localhost:8080/auth/google/callback",
-	ClientID:     "354877526084-povhr5cmv4q5jaq4efb0s3slbhh2jh5j.apps.googleusercontent.com",
-	ClientSecret: "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",
+	ClientID:     os.Getenv("GOOGLE_CLIENT_ID"),
+	ClientSecret: os.Getenv("GOOGLE_CLIENT_SECRET"),
 	Scopes:       []string{"https://www.googleapis.com/auth/userinfo.email"},
 	Endpoint:     google.Endpoint,
 }
