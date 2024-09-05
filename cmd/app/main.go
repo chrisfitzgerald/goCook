@@ -35,45 +35,46 @@ func serveLoginPage(c echo.Context) error {
 
 func customJWTMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
     return func(c echo.Context) error {
-        cookie, err := c.Cookie(TokenCookieName)
-        if err != nil {
-            log.Printf("No JWT cookie found: %v", err)
-            log.Printf("All cookies: %v", c.Cookies())
-            return next(c)
-        }
+        if c.Get("jwtLogFlag") == nil {
+            cookie, err := c.Cookie(TokenCookieName)
+            if err != nil {
+                log.Printf("No JWT cookie found")
+                c.Set("jwtLogFlag", true)
+                return next(c)
+            }
 
-        log.Printf("JWT cookie found: %+v", cookie)
+            log.Printf("JWT cookie found")
 
-        token, err := jwt.ParseWithClaims(cookie.Value, &jwt.RegisteredClaims{}, func(token *jwt.Token) (interface{}, error) {
-            return []byte(JWTKey), nil
-        })
-
-        if err != nil {
-            log.Printf("JWT parsing error: %v", err)
-            // Clear the invalid cookie
-            c.SetCookie(&http.Cookie{
-                Name:   TokenCookieName,
-                Value:  "",
-                Path:   "/",
-                MaxAge: -1,
+            token, err := jwt.ParseWithClaims(cookie.Value, &jwt.RegisteredClaims{}, func(token *jwt.Token) (interface{}, error) {
+                return []byte(JWTKey), nil
             })
-            return next(c)
-        }
 
-        if claims, ok := token.Claims.(*jwt.RegisteredClaims); ok && token.Valid {
-            c.Set("user", claims)
-            log.Printf("Valid JWT found for user: %s", claims.Subject)
-        } else {
-            log.Printf("Invalid JWT token")
-            // Clear the invalid cookie
-            c.SetCookie(&http.Cookie{
-                Name:   TokenCookieName,
-                Value:  "",
-                Path:   "/",
-                MaxAge: -1,
-            })
-        }
+            if err != nil {
+                log.Printf("JWT parsing error")
+                // Clear the invalid cookie
+                c.SetCookie(&http.Cookie{
+                    Name:   TokenCookieName,
+                    Value:  "",
+                    Path:   "/",
+                    MaxAge: -1,
+                })
+                return next(c)
+            }
 
+            if claims, ok := token.Claims.(*jwt.RegisteredClaims); ok && token.Valid {
+                c.Set("user", claims)
+                log.Printf("Valid JWT found for user")
+            } else {
+                log.Printf("Invalid JWT token")
+                // Clear the invalid cookie
+                c.SetCookie(&http.Cookie{
+                    Name:   TokenCookieName,
+                    Value:  "",
+                    Path:   "/",
+                    MaxAge: -1,
+                })
+            }
+        }
         return next(c)
     }
 }
@@ -104,20 +105,6 @@ func main() {
        templates: t,
    }
 
-   // JWT middleware configuration
-   // config := echojwt.Config{
-   //    NewClaimsFunc: func(c echo.Context) jwt.Claims {
-   //       return &jwt.RegisteredClaims{}
-   //    },
-   //    SigningKey: []byte(JWTKey),
-   //    TokenLookup: "cookie:" + TokenCookieName,
-   //    ErrorHandler: func(c echo.Context, err error) error {
-   //       log.Printf("JWT Middleware Error: %v", err)
-   //       log.Printf("Request path: %s", c.Request().URL.Path)
-   //       log.Printf("Cookies: %v", c.Cookies())
-   //       return nil // Allow the request to continue
-   //    },
-   // }
 
    // Apply JWT middleware to all routes, but allow requests to continue on error
    e.Use(customJWTMiddleware)
