@@ -98,12 +98,14 @@ func main() {
 
    // Serve files from the template directory
    e.Static("/template", "template")
-
    // Load templates
    t := template.Must(template.ParseGlob("template/*.html"))
    e.Renderer = &TemplateRenderer{
        templates: t,
    }
+
+   // Serve files from the static directory
+   e.Static("/static", "static")
 
 
    // Apply JWT middleware to all routes, but allow requests to continue on error
@@ -115,7 +117,7 @@ func main() {
    e.GET("/auth/google/login", googleLoginHandler)
    e.GET("/auth/google/callback", googleCallbackHandler)
    e.GET("/logout", logoutHandler)
-
+   e.GET("/game", gameHandler)
    // Protected routes can be added here if needed
    // r := e.Group("/protected")
    // r.Use(echojwt.WithConfig(config))
@@ -124,4 +126,18 @@ func main() {
    e.GET("/debug", debugHandler)
 
    e.Logger.Fatal(e.Start(":8080"))
+}
+
+func gameHandler(c echo.Context) error {
+    user := c.Get("user")
+    if user == nil {
+        return c.Redirect(http.StatusSeeOther, "/login") // Redirect to login if not authenticated
+    }
+
+    // Render the feature1 page with user data
+    claims := user.(*jwt.RegisteredClaims)
+    data := map[string]interface{}{
+        "Email": claims.Subject,
+    }
+    return c.Render(http.StatusOK, "game.html", data)
 }

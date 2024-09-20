@@ -8,8 +8,15 @@
     <div class="container">
         <h1>Welcome to the Home Page</h1>
         {{if .Email}}
-        <p>Today's date is {{.DateTime}}</p>    
-        <p>You are logged in as: {{.Email}}</p>
+            <p>Today's date is {{.DateTime}}</p>    
+            <p>You are logged in as: {{.Email}}</p>
+            <h2>Dashboard</h2>
+            <div class="grid">
+                <a href="/game" class="grid-item">Game</a>
+                <a href="/feature2" class="grid-item">Feature 2</a>
+                <a href="/feature3" class="grid-item">Feature 3</a>
+                <a href="/feature4" class="grid-item">Feature 4</a>
+            </div>
             <a href="/logout" class="logout-button">Logout</a>
         {{else}}
             <p>You are not logged in. <a href="/login">Login here</a></p>
